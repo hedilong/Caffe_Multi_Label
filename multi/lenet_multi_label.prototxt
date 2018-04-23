@@ -1,0 +1,305 @@
+name: "DIYNet"
+layer {
+  name: "data"
+  type: "ImageData"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  image_data_param {
+    source: "data/multi/train.txt"
+    batch_size: 1
+    new_height: 32
+		new_width: 32
+		label_dim: 4
+  }
+}
+layer {
+  name: "data"
+  type: "ImageData"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  image_data_param {
+    source: "data/multi/val.txt"
+    batch_size: 1
+		new_height: 32
+		new_width: 32
+    label_dim:4
+  }
+}
+layer {
+  name: "slice"
+  type: "Slice"
+  bottom: "label"
+  top: "one" 
+  top: "two"
+  top: "three"
+	top: "four"
+  slice_param {
+    axis: 1
+    slice_point: 1  #有n个label需要n-1个slice_point
+    slice_point: 2
+		slice_point: 3
+  }
+}
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 20
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "conv1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "conv2"
+  type: "Convolution"
+  bottom: "pool1"
+  top: "conv2"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 50
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "pool2"
+  type: "Pooling"
+  bottom: "conv2"
+  top: "pool2"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "ip1"
+  type: "InnerProduct"
+  bottom: "pool2"
+  top: "ip1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 500
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu1"
+  type: "ReLU"
+  bottom: "ip1"
+  top: "ip1"
+}
+layer {
+  name: "ione"
+  type: "InnerProduct"
+  bottom: "ip1"
+  top: "ione"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 62
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "itwo"
+  type: "InnerProduct"
+  bottom: "ip1"
+  top: "itwo"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 62
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "ithree"
+  type: "InnerProduct"
+  bottom: "ip1"
+  top: "ithree"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 62
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "ifour"
+  type: "InnerProduct"
+  bottom: "ip1"
+  top: "ifour"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 62
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "accuracy_one"
+  type: "Accuracy"
+  bottom: "ione"
+  bottom: "one"
+  top: "accuracy_one"
+  include {
+    phase: TEST
+  }
+}
+layer {
+  name: "loss_one"
+  type: "SoftmaxWithLoss"
+  bottom: "ione"
+  bottom: "one"
+  top: "loss_one"
+  loss_weight:0.5
+}
+layer {
+  name: "itwo"
+  type: "Accuracy"
+  bottom: "itwo"
+  bottom: "two"
+  top: "accuracy_two"
+  include {
+    phase: TEST
+  }
+}
+layer {
+  name: "loss_two"
+  type: "SoftmaxWithLoss"
+  bottom: "itwo"
+  bottom: "two"
+  top: "loss_two"
+  loss_weight:0.5
+}
+layer {
+  name: "ithree"
+  type: "Accuracy"
+  bottom: "ithree"
+  bottom: "three"
+  top: "accuracy_three"
+  include {
+    phase: TEST
+  }
+}
+layer {
+  name: "loss_three"
+  type: "SoftmaxWithLoss"
+  bottom: "ithree"
+  bottom: "three"
+  top: "loss_three"
+  loss_weight:0.5
+}
+layer {
+  name: "ifour"
+  type: "Accuracy"
+  bottom: "ifour"
+  bottom: "four"
+  top: "accuracy_four"
+  include {
+    phase: TEST
+  }
+}
+layer {
+  name: "loss_four"
+  type: "SoftmaxWithLoss"
+  bottom: "ifour"
+  bottom: "four"
+  top: "loss_four"
+  loss_weight:0.5
+}
